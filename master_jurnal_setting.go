@@ -1,4 +1,4 @@
-package keuangan
+package main
 
 import (
 	"apigo/lib/db"
@@ -7,6 +7,38 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type JurnalSetting struct {
+	IdKoperasi  int
+	KodeSetting string
+	KodeSubakun string
+}
+type MasterJurnalSetting struct {
+	KodeSetting string
+	Setting     string
+	Keterangan  string
+}
+type MasterJurnalKategoriAkun struct {
+	KodeKategori string
+	IdKoperasi   int
+	Kategori     string
+	Tipe         string
+}
+type MasterJurnalGrupAkun struct {
+	KodeGrup     string
+	KodeKategori string
+	GrupAkun     string
+}
+type MasterJurnalAkun struct {
+	KodeAkun string
+	KodeGrup string
+	Akun     string
+}
+type MasterJurnalSubakun struct {
+	KodeSubakun string
+	KodeAkun    string
+	Subakun     string
+}
 
 func MasterJurnalSettingRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/master-jurnal-setting", middleware.CORSMiddleware())

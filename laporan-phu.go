@@ -1,4 +1,4 @@
-package keuangan
+package main
 
 import (
 	"apigo/lib/db"

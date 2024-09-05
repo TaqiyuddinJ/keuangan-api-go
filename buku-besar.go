@@ -1,14 +1,12 @@
-package keuangan
+package main
 
 import (
 	"apigo/lib/db"
 
-	"github.com/gin-gonic/gin"
-
-	// "strconv"
-	// "apigo/lib/mainlib"
 	"fmt"
 	"sort"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/xuri/excelize/v2"
 )
