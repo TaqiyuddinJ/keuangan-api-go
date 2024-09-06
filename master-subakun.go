@@ -2,11 +2,17 @@ package main
 
 import (
 	"apigo/lib/db"
-	"apigo/lib/mainlib"
+	// "apigo/lib/mainlib"
 	"apigo/lib/middleware"
 
 	"github.com/gin-gonic/gin"
 )
+
+type MasterJurnalSubakun struct {
+	KodeSubakun string
+	KodeAkun    string
+	Subakun     string
+}
 
 func MasterSubAkunRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/master-subakun", middleware.CORSMiddleware())
@@ -15,7 +21,8 @@ func MasterSubAkunRoute(router *gin.Engine) {
 			db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 
 			result := []map[string]interface{}{}
 			sql := "SELECT A.kode_subakun, A.kode_akun, A.subakun, B.akun, D.kategori, A.keterangan "
@@ -38,7 +45,8 @@ func MasterSubAkunRoute(router *gin.Engine) {
 			db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 
 			result := []map[string]interface{}{}
 			db_go.Raw("SELECT * FROM jurnal_master_akun AS A INNER JOIN jurnal_master_kategori AS C ON (A.kode_kategori = C.kode_kategori) WHERE idkoperasi=?", idkoperasi).Scan(&result)

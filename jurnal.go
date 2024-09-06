@@ -2,12 +2,20 @@ package main
 
 import (
 	"apigo/lib/db"
-	"apigo/lib/mainlib"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+type Jurnal struct {
+	IdJurnal   int
+	Noref      string
+	Tanggal    time.Time
+	Keterangan string
+	IdKoperasi int
+}
 
 func JurnalRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/jurnal")
@@ -50,7 +58,8 @@ func JurnalRoute(router *gin.Engine) {
 		group.POST("/transaksi", func(context *gin.Context) {
 			db_go := db.KoneksiCore()
 			var callback = gin.H{}
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 
 			dataSubakun := context.PostForm("dataSubakun")
 			noref := context.PostForm("no_ref")

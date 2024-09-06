@@ -2,7 +2,6 @@ package main
 
 import (
 	"apigo/lib/db"
-	"apigo/lib/mainlib"
 	"apigo/lib/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -29,16 +28,6 @@ type MasterJurnalGrupAkun struct {
 	KodeKategori string
 	GrupAkun     string
 }
-type MasterJurnalAkun struct {
-	KodeAkun string
-	KodeGrup string
-	Akun     string
-}
-type MasterJurnalSubakun struct {
-	KodeSubakun string
-	KodeAkun    string
-	Subakun     string
-}
 
 func MasterJurnalSettingRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/master-jurnal-setting", middleware.CORSMiddleware())
@@ -47,7 +36,8 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 			// idkoperasi := 3
 
 			result := []map[string]interface{}{}
@@ -70,7 +60,8 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 			kode_akun := context.Query("kode_akun")
 			// idkoperasi := 3
 
@@ -105,7 +96,8 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			var callback = gin.H{}
 			status := 200
 			kode_akun := context.Query("kode_akun")
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 			// idkoperasi := 3
 			// kode_akun := ("FA.01.02.01")
 
@@ -132,7 +124,8 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			// subakun := context.PostForm("subakun")
 			kode_setting := context.PostForm("kode_setting")
 			kode_subakun := context.PostForm("kode_subakun")
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 
 			db_go.Exec("DELETE FROM jurnal_setting WHERE idkoperasi=? AND kode_setting=?", idkoperasi, kode_setting)
 

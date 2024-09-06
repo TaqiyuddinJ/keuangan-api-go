@@ -2,11 +2,16 @@ package main
 
 import (
 	"apigo/lib/db"
-	"apigo/lib/mainlib"
 	"apigo/lib/middleware"
 
 	"github.com/gin-gonic/gin"
 )
+
+type MasterJurnalAkun struct {
+	KodeAkun string
+	KodeGrup string
+	Akun     string
+}
 
 func MasterAkunRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/master-akun", middleware.CORSMiddleware())
@@ -15,7 +20,8 @@ func MasterAkunRoute(router *gin.Engine) {
 			db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
 
 			result := []map[string]interface{}{}
 			sql := "SELECT * FROM jurnal_master_akun AS A "
@@ -57,7 +63,9 @@ func MasterAkunRoute(router *gin.Engine) {
 			kode_kategori := context.PostForm("kode_kategori")
 			akun := context.PostForm("akun")
 			keterangan := context.PostForm("keterangan")
-			idkoperasi := mainlib.GetKoperasiID(context)
+			// idkoperasi := mainlib.GetKoperasiID(context)
+			idkoperasi := context.Query("idkoperasi")
+
 			//CEK PARAMETER POST
 			//callback["master"] = master
 
