@@ -1,7 +1,6 @@
 package main
 
 import (
-	"apigo/lib/db"
 	"fmt"
 	"strconv"
 	"time"
@@ -21,42 +20,42 @@ func JurnalRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/jurnal")
 	{
 		group.GET("/umum", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			result := []map[string]interface{}{}
 			sql := "SELECT *,(SELECT SUM(jurnal_trx_subakun.jumlah) FROM jurnal_trx_subakun LEFT JOIN jurnal_trx ON (jurnal_trx_subakun.idjurnal = jurnal_trx.idjurnal) WHERE jurnal_trx_subakun.dk = ? AND jurnal_trx_subakun.idjurnal = jurnal_trx.idjurnal AND jurnal_trx.idjurnal = A.idjurnal) AS debit, (SELECT SUM(jurnal_trx_subakun.jumlah) FROM jurnal_trx_subakun LEFT JOIN jurnal_trx ON (jurnal_trx_subakun.idjurnal = jurnal_trx.idjurnal) WHERE jurnal_trx_subakun.dk = ? AND jurnal_trx_subakun.idjurnal = jurnal_trx.idjurnal AND jurnal_trx.idjurnal = A.idjurnal) AS kredit FROM jurnal_trx AS A ORDER BY A.tanggal DESC, A.idjurnal DESC"
-			db_go.Raw(sql, "D", "K").Scan(&result)
+			db.Raw(sql, "D", "K").Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)
 		})
 
 		group.GET("/umum-akun", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			idjurnal := context.Query("idjurnal")
 
 			result := []map[string]interface{}{}
 			sql := "SELECT * FROM jurnal_trx_subakun AS A INNER JOIN jurnal_master_subakun AS B ON (A.kode_subakun = B.kode_subakun) INNER JOIN jurnal_master_akun AS C ON (B.kode_akun = C.kode_akun) WHERE A.idjurnal = ?"
-			db_go.Raw(sql, idjurnal).Scan(&result)
+			db.Raw(sql, idjurnal).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
 			callback["z"] = idjurnal
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)
 		})
 
 		group.POST("/transaksi", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			// idkoperasi := mainlib.GetKoperasiID(context)
 			idkoperasi := context.Query("idkoperasi")
@@ -116,7 +115,7 @@ func JurnalRoute(router *gin.Engine) {
 					Tanggal_ubah:  tanggal,
 				}
 
-				db_go.Table("jurnal_trx").Create(&jurnal)
+				db.Table("jurnal_trx").Create(&jurnal)
 
 				for i := 0; i < dataSubakunint; i++ {
 					jurnal_trx_subakun := map[string]interface{}{
@@ -125,7 +124,7 @@ func JurnalRoute(router *gin.Engine) {
 						"dk":           context.PostForm("type_" + strconv.Itoa(i)),
 						"jumlah":       context.PostForm("nilai_" + strconv.Itoa(i)),
 					}
-					db_go.Table("jurnal_trx_subakun").Create(&jurnal_trx_subakun)
+					db.Table("jurnal_trx_subakun").Create(&jurnal_trx_subakun)
 				}
 
 				callback["success"] = true
@@ -134,7 +133,7 @@ func JurnalRoute(router *gin.Engine) {
 				callback["success"] = false
 				callback["msg"] = "jurnal anda tidak balance, silahkan cek ulang"
 			}
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)

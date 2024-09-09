@@ -1,12 +1,8 @@
 package main
 
 import (
-	"apigo/lib/db"
-
 	"github.com/gin-gonic/gin"
 
-	// "strconv"
-	// "apigo/lib/mainlib"
 	"fmt"
 )
 
@@ -14,7 +10,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/laporan-neraca")
 	{
 		group.GET("/get", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			tahun := context.Query("tahun")
@@ -24,7 +20,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 			// SHU BERJALAN
 			phu_ := []map[string]interface{}{}
 			sql := "SELECT * FROM jurnal_master_kategori WHERE tipe = ? OR tipe = ? OR tipe = ? "
-			db_go.Raw(sql, "laba", "rugi", "pajak").Scan(&phu_)
+			db.Raw(sql, "laba", "rugi", "pajak").Scan(&phu_)
 
 			where := ""
 			fmt.Println(where)
@@ -48,7 +44,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 
 				sql += "FROM jurnal_master_akun INNER JOIN jurnal_master_kategori ON (jurnal_master_kategori.kode_kategori = jurnal_master_akun.kode_kategori) WHERE jurnal_master_kategori.kode_kategori = ? "
 
-				db_go.Raw(sql, phu["kode_kategori"].(string)).Scan(&resultShu)
+				db.Raw(sql, phu["kode_kategori"].(string)).Scan(&resultShu)
 
 				for _, rshu := range resultShu {
 					if rshu["tipe"].(string) == "laba" {
@@ -69,7 +65,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 			tempAset := []map[string]interface{}{}
 			aset_ := []map[string]interface{}{}
 			sqltwo := "SELECT * FROM jurnal_master_kategori WHERE tipe = ? OR tipe = ? "
-			db_go.Raw(sqltwo, "ASET_LANCAR", "ASET_TDK_LANCAR").Scan(&aset_)
+			db.Raw(sqltwo, "ASET_LANCAR", "ASET_TDK_LANCAR").Scan(&aset_)
 
 			where_aset := ""
 			if bulan != "" {
@@ -86,7 +82,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 
 				sql += "FROM jurnal_master_akun INNER JOIN jurnal_master_kategori ON (jurnal_master_kategori.kode_kategori = jurnal_master_akun.kode_kategori) WHERE jurnal_master_kategori.kode_kategori = ? "
 
-				db_go.Raw(sql, aset["kode_kategori"].(string)).Scan(&resultGolongan)
+				db.Raw(sql, aset["kode_kategori"].(string)).Scan(&resultGolongan)
 
 				temp := []map[string]interface{}{}
 				var total_aset float64
@@ -108,7 +104,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 			tempEkuitas := []map[string]interface{}{}
 			ekuitas_ := []map[string]interface{}{}
 			sqlthree := "SELECT * FROM jurnal_master_kategori WHERE tipe = ? OR tipe = ?"
-			db_go.Raw(sqlthree, "EKUITAS", "KEWAJIBAN").Scan(&ekuitas_)
+			db.Raw(sqlthree, "EKUITAS", "KEWAJIBAN").Scan(&ekuitas_)
 
 			for _, ekuitas := range ekuitas_ {
 				resultGolongan := []map[string]interface{}{}
@@ -118,7 +114,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 
 				sql += "FROM jurnal_master_akun INNER JOIN jurnal_master_kategori ON (jurnal_master_kategori.kode_kategori = jurnal_master_akun.kode_kategori) WHERE jurnal_master_kategori.kode_kategori = ? "
 
-				db_go.Raw(sql, ekuitas["kode_kategori"].(string)).Scan(&resultGolongan)
+				db.Raw(sql, ekuitas["kode_kategori"].(string)).Scan(&resultGolongan)
 
 				temp := []map[string]interface{}{}
 				var total_ekuitas float64
@@ -148,7 +144,7 @@ func LaporanNeracaRoute(router *gin.Engine) {
 
 			callback["success"] = true
 			callback["data"] = datas
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)

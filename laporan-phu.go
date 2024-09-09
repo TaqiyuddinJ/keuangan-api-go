@@ -1,12 +1,8 @@
 package main
 
 import (
-	"apigo/lib/db"
-
 	"github.com/gin-gonic/gin"
 
-	// "strconv"
-	// "apigo/lib/mainlib"
 	"fmt"
 )
 
@@ -14,7 +10,7 @@ func LaporanPhuRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/laporan-phu")
 	{
 		group.GET("/get", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			tahun := context.Query("tahun")
@@ -30,7 +26,7 @@ func LaporanPhuRoute(router *gin.Engine) {
 			tempKel := []map[string]interface{}{}
 			dataKelompok := []map[string]interface{}{}
 			sql := "SELECT * FROM jurnal_master_kategori WHERE tipe = ? OR tipe = ? "
-			db_go.Raw(sql, "PENDAPATAN", "BEBAN").Scan(&dataKelompok)
+			db.Raw(sql, "PENDAPATAN", "BEBAN").Scan(&dataKelompok)
 
 			// fmt.Println(dataKelompok)
 			for _, each := range dataKelompok {
@@ -46,7 +42,7 @@ func LaporanPhuRoute(router *gin.Engine) {
 
 				sql += "FROM jurnal_master_akun INNER JOIN jurnal_master_kategori ON (jurnal_master_kategori.kode_kategori = jurnal_master_akun.kode_kategori) WHERE jurnal_master_kategori.kode_kategori = ? "
 
-				db_go.Raw(sql, tahun, bulan, tahun, bulan, tahun, tahun, each["kode_kategori"].(string)).Scan(&resultGolongan)
+				db.Raw(sql, tahun, bulan, tahun, bulan, tahun, tahun, each["kode_kategori"].(string)).Scan(&resultGolongan)
 
 				temp := []map[string]interface{}{}
 				var totalakumulasi_laba float64
@@ -84,7 +80,7 @@ func LaporanPhuRoute(router *gin.Engine) {
 			tempPajakGlobal := []map[string]interface{}{}
 			dataPajak := []map[string]interface{}{}
 			sqlpajak := "SELECT * FROM jurnal_master_kategori WHERE tipe = ?"
-			db_go.Raw(sqlpajak, "PAJAK").Scan(&dataPajak)
+			db.Raw(sqlpajak, "PAJAK").Scan(&dataPajak)
 
 			for _, eachPajak := range dataPajak {
 				fmt.Println(eachPajak)
@@ -99,7 +95,7 @@ func LaporanPhuRoute(router *gin.Engine) {
 
 				sqlpajaktwo += "FROM jurnal_master_akun INNER JOIN jurnal_master_kategori ON (jurnal_master_kategori.kode_kategori = jurnal_master_akun.kode_kategori) WHERE jurnal_master_kategori.kode_kategori = ? "
 
-				db_go.Raw(sqlpajaktwo, tahun, bulan, tahun, bulan, tahun, tahun, eachPajak["kode_kategori"].(string)).Scan(&resultGolonganPajak)
+				db.Raw(sqlpajaktwo, tahun, bulan, tahun, bulan, tahun, tahun, eachPajak["kode_kategori"].(string)).Scan(&resultGolonganPajak)
 
 				tempPajak := []map[string]interface{}{}
 				var totalakumulasi_pajak float64 = 0
@@ -135,7 +131,7 @@ func LaporanPhuRoute(router *gin.Engine) {
 			callback["success"] = true
 			callback["data"] = tempKel
 			callback["pajak"] = tempPajakGlobal
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)

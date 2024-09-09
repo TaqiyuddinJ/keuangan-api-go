@@ -1,12 +1,8 @@
 package main
 
 import (
-	"apigo/lib/db"
-
 	"github.com/gin-gonic/gin"
 
-	// "strconv"
-	// "apigo/lib/mainlib"
 	"fmt"
 )
 
@@ -14,7 +10,7 @@ func NeracaSaldoRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/neraca-saldo")
 	{
 		group.GET("/get", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			tahun := context.Query("tahun")
@@ -31,7 +27,7 @@ func NeracaSaldoRoute(router *gin.Engine) {
 
 			dataKategori := []map[string]interface{}{}
 			sql := "SELECT * FROM jurnal_master_kategori WHERE tipe = ? OR tipe = ? OR tipe = ? OR tipe = ?"
-			db_go.Raw(sql, "ASET_LANCAR", "ASET_TDK_LANCAR", "KEWAJIBAN", "EKUITAS").Scan(&dataKategori)
+			db.Raw(sql, "ASET_LANCAR", "ASET_TDK_LANCAR", "KEWAJIBAN", "EKUITAS").Scan(&dataKategori)
 
 			tempKel := []map[string]interface{}{}
 			for _, kategori := range dataKategori {
@@ -43,7 +39,7 @@ func NeracaSaldoRoute(router *gin.Engine) {
 				sql += "IFNULL((SELECT SUM(jurnal_trx_subakun.jumlah) FROM jurnal_trx, jurnal_trx_subakun, jurnal_master_subakun WHERE jurnal_trx.idjurnal = jurnal_trx_subakun.idjurnal AND jurnal_master_subakun.kode_subakun = jurnal_trx_subakun.kode_subakun AND jurnal_trx_subakun.dk = 'D' AND jurnal_master_subakun.kode_akun = jurnal_master_akun.kode_akun " + where_awal + "),0) AS debit_saldoawal, "
 				sql += "IFNULL((SELECT SUM(jurnal_trx_subakun.jumlah) FROM jurnal_trx, jurnal_trx_subakun, jurnal_master_subakun WHERE jurnal_trx.idjurnal = jurnal_trx_subakun.idjurnal AND jurnal_master_subakun.kode_subakun = jurnal_trx_subakun.kode_subakun AND jurnal_trx_subakun.dk = 'K' AND jurnal_master_subakun.kode_akun = jurnal_master_akun.kode_akun " + where_awal + "),0) AS kredit_saldoawal "
 				sql += "FROM jurnal_master_akun INNER JOIN jurnal_master_kategori ON (jurnal_master_kategori.kode_kategori = jurnal_master_akun.kode_kategori) WHERE jurnal_master_kategori.kode_kategori = ? "
-				db_go.Raw(sql, tahun, tahun, kategori["kode_kategori"].(string)).Scan(&resultGroup)
+				db.Raw(sql, tahun, tahun, kategori["kode_kategori"].(string)).Scan(&resultGroup)
 
 				temp := []map[string]interface{}{}
 				var kategori_saldo float64
@@ -80,7 +76,7 @@ func NeracaSaldoRoute(router *gin.Engine) {
 			callback["success"] = true
 			callback["data"] = tempKel
 
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)

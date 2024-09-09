@@ -1,9 +1,6 @@
 package main
 
 import (
-	"apigo/lib/db"
-	"apigo/lib/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,10 +27,10 @@ type MasterJurnalGrupAkun struct {
 }
 
 func MasterJurnalSettingRoute(router *gin.Engine) {
-	group := router.Group("/keuangan/master-jurnal-setting", middleware.CORSMiddleware())
+	group := router.Group("/keuangan/master-jurnal-setting", corsMiddleware())
 	{
 		group.GET("/get", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
 			// idkoperasi := mainlib.GetKoperasiID(context)
@@ -46,18 +43,18 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			sql += "LEFT JOIN jurnal_master_subakun AS C ON (B.kode_subakun = C.kode_subakun) "
 			sql += "LEFT JOIN jurnal_master_akun AS D ON (C.kode_akun = D.kode_akun) "
 
-			db_go.Raw(sql, idkoperasi).Scan(&result)
+			db.Raw(sql, idkoperasi).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(status, callback)
 		})
 
 		group.GET("/get-akun", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
 			// idkoperasi := mainlib.GetKoperasiID(context)
@@ -70,7 +67,7 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			sql += "INNER JOIN master_jurnal_group_akun AS B ON (A.kode_group = B.kode_group) "
 			sql += "INNER JOIN master_jurnal_kategori_akun AS C ON (B.kode_kategori = C.kode_kategori) "
 			sql += "WHERE C.idkoperasi=?"
-			db_go.Raw(sql, idkoperasi).Scan(&result_akun)
+			db.Raw(sql, idkoperasi).Scan(&result_akun)
 
 			result_subakun := []map[string]interface{}{}
 			sql = "SELECT B.akun, A.subakun, A.kode_subakun FROM master_jurnal_subakun AS A "
@@ -78,21 +75,21 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			sql += "INNER JOIN master_jurnal_group_akun AS C ON (B.kode_group = C.kode_group) "
 			sql += "INNER JOIN master_jurnal_kategori_akun AS D ON (C.kode_kategori = D.kode_kategori) "
 			sql += "WHERE D.idkoperasi=? AND A.kode_akun=?"
-			db_go.Raw(sql, idkoperasi, kode_akun).Scan(&result_subakun)
+			db.Raw(sql, idkoperasi, kode_akun).Scan(&result_subakun)
 
 			callback["success"] = true
 			callback["data"] = map[string]interface{}{
 				"akun":     result_akun,
 				"sub_akun": result_subakun,
 			}
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(status, callback)
 		})
 
 		group.GET("/get-subakun", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
 			kode_akun := context.Query("kode_akun")
@@ -107,18 +104,18 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			sql += "INNER JOIN master_jurnal_group_akun AS C ON (B.kode_group = C.kode_group) "
 			sql += "INNER JOIN master_jurnal_kategori_akun AS D ON (C.kode_kategori = D.kode_kategori) "
 			sql += "WHERE D.idkoperasi=? AND A.kode_akun=?"
-			db_go.Raw(sql, idkoperasi, kode_akun).Scan(&result)
+			db.Raw(sql, idkoperasi, kode_akun).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(status, callback)
 		})
 
 		group.POST("/edit", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			// akun := context.PostForm("akun")
 			// subakun := context.PostForm("subakun")
@@ -127,14 +124,14 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 			// idkoperasi := mainlib.GetKoperasiID(context)
 			idkoperasi := context.Query("idkoperasi")
 
-			db_go.Exec("DELETE FROM jurnal_setting WHERE idkoperasi=? AND kode_setting=?", idkoperasi, kode_setting)
+			db.Exec("DELETE FROM jurnal_setting WHERE idkoperasi=? AND kode_setting=?", idkoperasi, kode_setting)
 
 			data := map[string]interface{}{
 				"idkoperasi":   idkoperasi,
 				"kode_setting": kode_setting,
 				"kode_subakun": kode_subakun,
 			}
-			create := db_go.Table("jurnal_setting").Create(&data)
+			create := db.Table("jurnal_setting").Create(&data)
 
 			if create.Error == nil {
 				callback["success"] = true
@@ -143,7 +140,7 @@ func MasterJurnalSettingRoute(router *gin.Engine) {
 				callback["success"] = false
 				callback["msg"] = "Update Gagal"
 			}
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)

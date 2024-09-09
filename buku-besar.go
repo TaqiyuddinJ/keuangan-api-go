@@ -1,8 +1,6 @@
 package main
 
 import (
-	"apigo/lib/db"
-
 	"fmt"
 	"sort"
 
@@ -15,7 +13,7 @@ func BukuBesarRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/buku-besar")
 	{
 		group.GET("/get", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db
 			var callback = gin.H{}
 
 			start := context.Query("start")
@@ -29,7 +27,7 @@ func BukuBesarRoute(router *gin.Engine) {
 				sql += "IFNULL((SELECT SUM(jurnal_trx_subakun.nilai) FROM jurnal_trx_subakun WHERE jurnal_trx_subakun.kode_subakun=jurnal_master_subakun.kode_subakun AND jurnal_trx_subakun.dk='K'),0) AS kredit "
 				sql += "FROM jurnal_master_subakun "
 				sql += "INNER JOIN jurnal_master_akun ON (jurnal_master_akun.kode_akun=jurnal_master_subakun.kode_akun)"
-				db_go.Raw(sql).Scan(&result)
+				db.Raw(sql).Scan(&result)
 
 				callback["success"] = true
 				callback["data"] = result
@@ -46,19 +44,19 @@ func BukuBesarRoute(router *gin.Engine) {
 				sql += "AND jurnal_trx_subakun.kode_subakun = A.kode_subakun), 0) AS kredit "
 				sql += "FROM jurnal_trx_subakun AS A INNER JOIN jurnal_master_subakun AS B ON (A.kode_subakun = B.kode_subakun) INNER JOIN jurnal_master_akun AS C ON (B.kode_akun = C.kode_akun) INNER JOIN jurnal_trx AS D ON (A.idjurnal = D.idjurnal) "
 				sql += "WHERE D.tanggal >= ? AND  D.tanggal <= ? GROUP BY A.kode_subakun"
-				db_go.Raw(sql, start, end).Scan(&result)
+				db.Raw(sql, start, end).Scan(&result)
 
 				callback["success"] = true
 				callback["data"] = result
 			}
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)
 		})
 
 		group.GET("/detail", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			start := context.Query("start") + " 00:00:00"
@@ -71,7 +69,7 @@ func BukuBesarRoute(router *gin.Engine) {
 				sql := "SELECT * FROM jurnal_trx_subakun AS A INNER JOIN jurnal_master_subakun AS B ON (A.kode_subakun = B.kode_subakun) "
 				sql += "LEFT JOIN jurnal_trx AS C ON (A.idjurnal = C.idjurnal) "
 				sql += "WHERE A.kode_subakun = ? ORDER BY C.idjurnal ASC "
-				db_go.Raw(sql, kode_subakun).Scan(&result)
+				db.Raw(sql, kode_subakun).Scan(&result)
 
 				dk := "D"
 				saldo := 0
@@ -127,17 +125,17 @@ func BukuBesarRoute(router *gin.Engine) {
 				sql += "IFNULL((SELECT SUM(jurnal_trx_subakun.jumlah) FROM jurnal_trx_subakun LEFT JOIN jurnal_trx ON (jurnal_trx_subakun.idjurnal = jurnal_trx.idjurnal) "
 				sql += "WHERE jurnal_trx_subakun.kode_subakun=jurnal_master_subakun.kode_subakun AND jurnal_trx_subakun.dk='K' AND jurnal_trx.tanggal < ?),0) AS kredit "
 				sql += "FROM jurnal_master_subakun WHERE jurnal_master_subakun.kode_subakun = ? "
-				db_go.Raw(sql, start, start, kode_subakun).Scan(&dataAwal)
+				db.Raw(sql, start, start, kode_subakun).Scan(&dataAwal)
 
 				dataSubakun := map[string]interface{}{}
 				sqltwo := "SELECT * FROM jurnal_master_subakun AS A WHERE A.kode_subakun = ?"
-				db_go.Raw(sqltwo, kode_subakun).Scan(&dataSubakun)
+				db.Raw(sqltwo, kode_subakun).Scan(&dataSubakun)
 
 				result := []map[string]interface{}{}
 				sqlthree := "SELECT * FROM jurnal_trx_subakun AS A INNER JOIN jurnal_master_subakun AS B ON (A.kode_subakun = B.kode_subakun) "
 				sqlthree += "LEFT JOIN jurnal_trx AS C ON (A.idjurnal = C.idjurnal) "
 				sqlthree += "WHERE A.kode_subakun = ? AND C.tanggal >= ? AND C.tanggal <= ? ORDER BY C.idjurnal ASC "
-				db_go.Raw(sqlthree, kode_subakun, start, end).Scan(&result)
+				db.Raw(sqlthree, kode_subakun, start, end).Scan(&result)
 
 				dk := ""
 				fmt.Println(dk)
@@ -200,14 +198,14 @@ func BukuBesarRoute(router *gin.Engine) {
 				callback["data"] = temp
 				callback["subakun"] = dataSubakun
 			}
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)
 		})
 
 		group.GET("/detail/export", func(context *gin.Context) {
-			db_go := db.KoneksiCore()
+			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 
 			start := context.Query("start") + " 00:00:00"
@@ -221,17 +219,17 @@ func BukuBesarRoute(router *gin.Engine) {
 			sql += "IFNULL((SELECT SUM(jurnal_trx_subakun.jumlah) FROM jurnal_trx_subakun LEFT JOIN jurnal_trx ON (jurnal_trx_subakun.idjurnal = jurnal_trx.idjurnal) "
 			sql += "WHERE jurnal_trx_subakun.kode_subakun=jurnal_master_subakun.kode_subakun AND jurnal_trx_subakun.dk='K' AND jurnal_trx.tanggal < ?),0) AS kredit "
 			sql += "FROM jurnal_master_subakun WHERE jurnal_master_subakun.kode_subakun = ? "
-			db_go.Raw(sql, start, start, kode_subakun).Scan(&dataAwal)
+			db.Raw(sql, start, start, kode_subakun).Scan(&dataAwal)
 
 			dataSubakun := map[string]interface{}{}
 			sqltwo := "SELECT * FROM jurnal_master_subakun AS A WHERE A.kode_subakun = ?"
-			db_go.Raw(sqltwo, kode_subakun).Scan(&dataSubakun)
+			db.Raw(sqltwo, kode_subakun).Scan(&dataSubakun)
 
 			result := []map[string]interface{}{}
 			sqlthree := "SELECT * FROM jurnal_trx_subakun AS A INNER JOIN jurnal_master_subakun AS B ON (A.kode_subakun = B.kode_subakun) "
 			sqlthree += "LEFT JOIN jurnal_trx AS C ON (A.idjurnal = C.idjurnal) "
 			sqlthree += "WHERE A.kode_subakun = ? AND C.tanggal >= ? AND C.tanggal <= ? ORDER BY C.idjurnal ASC "
-			db_go.Raw(sqlthree, kode_subakun, start, end).Scan(&result)
+			db.Raw(sqlthree, kode_subakun, start, end).Scan(&result)
 
 			dk := ""
 			fmt.Println(dk)
@@ -371,7 +369,7 @@ func BukuBesarRoute(router *gin.Engine) {
 
 			callback["success"] = true
 			callback["msg"] = "Sukses Download"
-			DB, _ := db_go.DB()
+			DB, _ := db.DB()
 			DB.Close()
 
 			context.JSON(200, callback)
