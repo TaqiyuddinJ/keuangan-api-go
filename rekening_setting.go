@@ -34,16 +34,16 @@ func RekeningSettingRoute(router *gin.Engine) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("identitas")
+			// identitas := mainlib.GetKoperasiID(context)
+			identitas := context.Query("identitas")
 
 			result := []map[string]interface{}{}
-			sql := "SELECT A.bank, A.norek, A.nama_rekening, A.idkoperasi, A.logo, A.topup_aktif, A.kode_subakun, B.subakun, C.kode_akun FROM koperasi_bank AS A "
+			sql := "SELECT A.bank, A.norek, A.nama_rekening, A.identitas, A.logo, A.topup_aktif, A.kode_subakun, B.subakun, C.kode_akun FROM koperasi_bank AS A "
 			sql += "INNER JOIN jurnal_master_subakun AS B ON (A.kode_subakun = B.kode_subakun) "
 			sql += "INNER JOIN jurnal_master_akun AS C ON (B.kode_akun = C.kode_akun) "
-			sql += "WHERE A.idkoperasi=?"
+			sql += "WHERE A.identitas=?"
 
-			db.Raw(sql, idkoperasi).Scan(&result)
+			db.Raw(sql, identitas).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
@@ -56,25 +56,25 @@ func RekeningSettingRoute(router *gin.Engine) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			idkoperasi := context.Query("identitas")
+			identitas := context.Query("identitas")
 
 			kode_akun := context.Query("kode_akun")
-			// idkoperasi := 3
+			// identitas := 3
 
 			result_akun := []map[string]interface{}{}
 			sql := "SELECT A.kode_akun, A.akun FROM master_jurnal_akun AS A "
 			sql += "INNER JOIN master_jurnal_group_akun AS B ON (A.kode_group = B.kode_group) "
 			sql += "INNER JOIN master_jurnal_kategori_akun AS C ON (B.kode_kategori = C.kode_kategori) "
-			sql += "WHERE C.idkoperasi=?"
-			db.Raw(sql, idkoperasi).Scan(&result_akun)
+			sql += "WHERE C.identitas=?"
+			db.Raw(sql, identitas).Scan(&result_akun)
 
 			result_subakun := []map[string]interface{}{}
 			sql = "SELECT B.akun, A.subakun, A.kode_subakun FROM master_jurnal_subakun AS A "
 			sql += "INNER JOIN master_jurnal_akun AS B ON (A.kode_akun = B.kode_akun) "
 			sql += "INNER JOIN master_jurnal_group_akun AS C ON (B.kode_group = C.kode_group) "
 			sql += "INNER JOIN master_jurnal_kategori_akun AS D ON (C.kode_kategori = D.kode_kategori) "
-			sql += "WHERE D.idkoperasi=? AND A.kode_akun=?"
-			db.Raw(sql, idkoperasi, kode_akun).Scan(&result_subakun)
+			sql += "WHERE D.identitas=? AND A.kode_akun=?"
+			db.Raw(sql, identitas, kode_akun).Scan(&result_subakun)
 
 			callback["success"] = true
 			callback["data"] = map[string]interface{}{
@@ -92,8 +92,8 @@ func RekeningSettingRoute(router *gin.Engine) {
 			var callback = gin.H{}
 			status := 200
 			kode_akun := context.Query("kode_akun")
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("identitas")
+			// identitas := mainlib.GetKoperasiID(context)
+			identitas := context.Query("identitas")
 
 			// kode_akun := ("FA.01.02.01")
 
@@ -102,8 +102,8 @@ func RekeningSettingRoute(router *gin.Engine) {
 			sql += "INNER JOIN master_jurnal_akun AS B ON (A.kode_akun = B.kode_akun) "
 			sql += "INNER JOIN master_jurnal_group_akun AS C ON (B.kode_group = C.kode_group) "
 			sql += "INNER JOIN master_jurnal_kategori_akun AS D ON (C.kode_kategori = D.kode_kategori) "
-			sql += "WHERE D.idkoperasi=? AND A.kode_akun=?"
-			db.Raw(sql, idkoperasi, kode_akun).Scan(&result)
+			sql += "WHERE D.identitas=? AND A.kode_akun=?"
+			db.Raw(sql, identitas, kode_akun).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
@@ -122,8 +122,8 @@ func RekeningSettingRoute(router *gin.Engine) {
 			kode_subakun := context.PostForm("kode_subakun")
 			topup_aktif := context.PostForm("topup_aktif")
 			logo, err := context.FormFile("logo")
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("identitas")
+			// identitas := mainlib.GetKoperasiID(context)
+			identitas := context.Query("identitas")
 
 			if err != nil {
 				callback["logo"] = "No Image Found"
@@ -139,7 +139,7 @@ func RekeningSettingRoute(router *gin.Engine) {
 				callback["logoz"] = err
 			}
 			data := map[string]interface{}{
-				"idkoperasi":    idkoperasi,
+				"identitas":     identitas,
 				"norek":         norek,
 				"bank":          bank,
 				"nama_rekening": nama_rekening,
@@ -177,7 +177,7 @@ func RekeningSettingRoute(router *gin.Engine) {
 			kode_subakun := context.PostForm("kode_subakun")
 			topup_aktif := context.PostForm("topup_aktif")
 			logo, err := context.FormFile("logo")
-			// idkoperasi := mainlib.GetKoperasiID(context)
+			// identitas := mainlib.GetKoperasiID(context)
 
 			if err != nil {
 
@@ -223,10 +223,10 @@ func RekeningSettingRoute(router *gin.Engine) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			norek := context.PostForm("norek")
-			idkoperasi := context.Query("identitas")
-			// idkoperasi := mainlib.GetKoperasiID(context)
+			identitas := context.Query("identitas")
+			// identitas := mainlib.GetKoperasiID(context)
 
-			result := db.Exec("DELETE FROM koperasi_bank WHERE idkoperasi=? AND norek = ?", idkoperasi, norek)
+			result := db.Exec("DELETE FROM koperasi_bank WHERE identitas=? AND norek = ?", identitas, norek)
 			if result.Error == nil {
 				callback["success"] = true
 				callback["msg"] = "Data berhasil dihapus"

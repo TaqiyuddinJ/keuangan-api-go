@@ -13,7 +13,7 @@ type Jurnal struct {
 	Noref      string
 	Tanggal    time.Time
 	Keterangan string
-	IdKoperasi int
+	IdEntitas  int
 }
 
 func JurnalRoute(router *gin.Engine) {
@@ -57,8 +57,7 @@ func JurnalRoute(router *gin.Engine) {
 		group.POST("/transaksi", func(context *gin.Context) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("idkoperasi")
+			identitas := context.Query("identitas")
 
 			dataSubakun := context.PostForm("dataSubakun")
 			noref := context.PostForm("no_ref")
@@ -97,7 +96,7 @@ func JurnalRoute(router *gin.Engine) {
 					Noref         string
 					Tanggal       string
 					Keterangan    string
-					Idkoperasi    string
+					Identitas     string
 					Tipe          string
 					Posisi        string
 					Tanggal_input string
@@ -108,7 +107,7 @@ func JurnalRoute(router *gin.Engine) {
 					Noref:         noref,
 					Tanggal:       tanggal,
 					Keterangan:    keterangan,
-					Idkoperasi:    idkoperasi,
+					Identitas:     identitas,
 					Tipe:          "manual",
 					Posisi:        "berjalan",
 					Tanggal_input: tanggal,

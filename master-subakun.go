@@ -17,16 +17,16 @@ func MasterSubAkunRoute(router *gin.Engine) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("idkoperasi")
+			// identitas := mainlib.GetKoperasiID(context)
+			identitas := context.Query("identitas")
 
 			result := []map[string]interface{}{}
 			sql := "SELECT A.kode_subakun, A.kode_akun, A.subakun, B.akun, D.kategori, A.keterangan "
 			sql += "FROM jurnal_master_subakun AS A "
 			sql += "INNER JOIN jurnal_master_akun AS B ON (A.kode_akun = B.kode_akun) "
 			sql += "INNER JOIN jurnal_master_kategori AS D ON (B.kode_kategori = D.kode_kategori) "
-			sql += "WHERE B.idkoperasi=?"
-			db.Raw(sql, idkoperasi).Scan(&result)
+			sql += "WHERE B.identitas=?"
+			db.Raw(sql, identitas).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result
@@ -41,11 +41,11 @@ func MasterSubAkunRoute(router *gin.Engine) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("idkoperasi")
+			// identitas := mainlib.GetKoperasiID(context)
+			identitas := context.Query("identitas")
 
 			result := []map[string]interface{}{}
-			db.Raw("SELECT * FROM jurnal_master_akun AS A INNER JOIN jurnal_master_kategori AS C ON (A.kode_kategori = C.kode_kategori) WHERE idkoperasi=?", idkoperasi).Scan(&result)
+			db.Raw("SELECT * FROM jurnal_master_akun AS A INNER JOIN jurnal_master_kategori AS C ON (A.kode_kategori = C.kode_kategori) WHERE identitas=?", identitas).Scan(&result)
 
 			callback["success"] = true
 			callback["data"] = result

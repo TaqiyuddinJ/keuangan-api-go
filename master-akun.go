@@ -10,36 +10,65 @@ type MasterJurnalAkun struct {
 	Akun     string
 }
 
+func GetMasterAkun() ([]MasterJurnalAkun, error) {
+	var jurnalAkuns []MasterJurnalAkun
+	tx := db.Debug().Find(&jurnalAkuns)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return jurnalAkuns, nil
+}
+func GetMasterAkunDariEntitas(identitas int) ([]MasterJurnalAkun, error) {
+	var jurnalakuns []MasterJurnalAkun
+	tx := db.Debug().Joins("INNER JOIN master_jurnal_grup_akun ON master_jurnal_akun.kode_grup = master_jurnal_grup_akun.kode_grup").Joins("INNER JOIN master_jurnal_kategori_akun ON master_jurnal_grup_akun.kode_kategori = master_jurnal_grup_akun.kode_kategori").Where("identitas = ?", identitas).Find(&jurnalakuns)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return jurnalakuns, nil
+}
+
+func GetMasterAkunMap(identitas int) ([]map[string]interface{}, error) {
+	var jurnalakuns []map[string]interface{}
+	sql := "SELECT * FROM jurnal_master_akun AS A "
+	sql += "INNER JOIN jurnal_master_kategori AS C ON (A.kode_kategori = C.kode_kategori) "
+	sql += "WHERE A.identitas=?"
+	tx := db.Debug().Raw(sql, identitas).Scan(&jurnalakuns)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return jurnalakuns, nil
+}
+
 func MasterAkunRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/master-akun", corsMiddleware())
 	{
-		group.GET("/get", func(context *gin.Context) {
-			// db_go := db.KoneksiCore()
-			var callback = gin.H{}
-			status := 200
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("idkoperasi")
+		// group.GET("/get", func(context *gin.Context) {
+		// 	// db_go := db.KoneksiCore()
+		// 	var callback = gin.H{}
+		// 	status := 200
+		// 	identitas := context.Query("identitas")
 
-			result := []map[string]interface{}{}
-			sql := "SELECT * FROM jurnal_master_akun AS A "
-			sql += "INNER JOIN jurnal_master_kategori AS C ON (A.kode_kategori = C.kode_kategori) "
-			sql += "WHERE A.idkoperasi=?"
-			db.Raw(sql, idkoperasi).Scan(&result)
+		// 	result := []map[string]interface{}{}
+		// 	sql := "SELECT * FROM jurnal_master_akun AS A "
+		// 	sql += "INNER JOIN jurnal_master_kategori AS C ON (A.kode_kategori = C.kode_kategori) "
+		// 	sql += "WHERE A.identitas=?"
+		// 	db.Raw(sql, identitas).Scan(&result)
 
-			callback["success"] = true
-			callback["data"] = result
-			// callback["idpersonalia"] = idpersonalia
-			DB, _ := db.DB()
-			DB.Close()
+		// 	callback["success"] = true
+		// 	callback["data"] = result
+		// 	// callback["idpersonalia"] = idpersonalia
+		// 	DB, _ := db.DB()
+		// 	DB.Close()
 
-			context.JSON(status, callback)
-		})
+		// 	context.JSON(status, callback)
+		// })
 
 		group.GET("/get-kategori", func(context *gin.Context) {
 			// db_go := db.KoneksiCore()
 			var callback = gin.H{}
 			status := 200
-			// idkoperasi := mainlib.GetKoperasiID(context)
+			// identitas := mainlib.GetKoperasiID(context)
 
 			result := []map[string]interface{}{}
 			db.Raw("SELECT * FROM jurnal_master_kategori ").Scan(&result)
@@ -60,8 +89,7 @@ func MasterAkunRoute(router *gin.Engine) {
 			kode_kategori := context.PostForm("kode_kategori")
 			akun := context.PostForm("akun")
 			keterangan := context.PostForm("keterangan")
-			// idkoperasi := mainlib.GetKoperasiID(context)
-			idkoperasi := context.Query("idkoperasi")
+			identitas := context.Query("identitas")
 
 			//CEK PARAMETER POST
 			//callback["master"] = master
@@ -76,7 +104,7 @@ func MasterAkunRoute(router *gin.Engine) {
 					"kode_kategori": kode_kategori,
 					"akun":          akun,
 					"keterangan":    keterangan,
-					"idkoperasi":    idkoperasi,
+					"identitas":     identitas,
 					"tetap":         0,
 				}
 				create := db.Table("jurnal_master_akun").Create(&data)
