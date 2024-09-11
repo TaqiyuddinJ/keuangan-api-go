@@ -14,6 +14,18 @@ type Jurnal struct {
 	Tanggal    time.Time
 	Keterangan string
 	IdEntitas  int
+	Tipe       string
+	Posisi     string
+	WaktuInput time.Time
+	WaktuUbah  time.Time
+}
+type JurnalSubakun struct {
+	IdJurnal    int
+	KodeSubakun string
+	DK          string
+	Jumlah      string
+	WaktuInput  time.Time
+	WaktuUbah   time.Time
 }
 
 func JurnalRoute(router *gin.Engine) {
