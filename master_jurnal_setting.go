@@ -26,6 +26,16 @@ type MasterJurnalGrupAkun struct {
 	GrupAkun     string
 }
 
+func GetMasterJurnalGrupAkun(KodeKategori string) ([]MasterJurnalGrupAkun, error) {
+	var jurnalGrupAkuns []MasterJurnalGrupAkun
+	tx := db.Debug().Where("kode_kategori = ?", KodeKategori).Find(&jurnalGrupAkuns)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return jurnalGrupAkuns, nil
+}
+
 func MasterJurnalSettingRoute(router *gin.Engine) {
 	group := router.Group("/keuangan/master-jurnal-setting", corsMiddleware())
 	{
