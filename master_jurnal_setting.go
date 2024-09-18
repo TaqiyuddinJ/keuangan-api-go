@@ -26,6 +26,14 @@ type MasterJurnalGrupAkun struct {
 	GrupAkun     string
 }
 
+func GetMasterJurnalKategoriAkun(identitas int) ([]MasterJurnalKategoriAkun, error) {
+	var jurnalKategori []MasterJurnalKategoriAkun
+	tx := db.Debug().Find(&jurnalKategori, "id_entitas = ?", identitas)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return jurnalKategori, nil
+}
 func GetMasterJurnalGrupAkun(KodeKategori string) ([]MasterJurnalGrupAkun, error) {
 	var jurnalGrupAkuns []MasterJurnalGrupAkun
 	tx := db.Debug().Where("kode_kategori = ?", KodeKategori).Find(&jurnalGrupAkuns)
