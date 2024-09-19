@@ -26,6 +26,15 @@ type MasterJurnalGrupAkun struct {
 	GrupAkun     string
 }
 
+func GetMasterJurnalSetting(identitas int) ([]MasterJurnalSetting, error) {
+	var jurnalSettings []MasterJurnalSetting
+	tx := db.Debug().Joins("LEFT JOIN jurnal_setting ON master_jurnal_setting.kode_setting = jurnal_setting.kode_setting AND jurnal_setting.identitas = ?", identitas).Find(&jurnalSettings)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return jurnalSettings, nil
+}
+
 func GetMasterJurnalKategoriAkun(identitas int) ([]MasterJurnalKategoriAkun, error) {
 	var jurnalKategori []MasterJurnalKategoriAkun
 	tx := db.Debug().Find(&jurnalKategori, "id_entitas = ?", identitas)
